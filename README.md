@@ -37,6 +37,7 @@
 
 ![效果预览](./preview.gif)
 
+（完）
 
 [1]: https://www.yuque.com/yuque/help/about "语雀是什么"
 [2]: https://www.yuque.com/yuque/help "语雀用户手册"

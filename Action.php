@@ -37,6 +37,7 @@ class YuqueSync_Action extends Typecho_Widget implements Widget_Interface_Do
 
         $client = Typecho_Http_Client::get();
         $client->setMethod('GET');
+        $client->setHeader('User-Agent', 'Typecho-Yuque-Sync');
         $client->setHeader('X-Auth-Token', $token);
         $client->send("https://www.yuque.com/api/v2/repos/{$namespace}/docs/{$slug}?raw=1");
 
