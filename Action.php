@@ -38,9 +38,11 @@ class YuqueSync_Action extends Typecho_Widget implements Widget_Interface_Do
     /**
      * 获取文档列表
      */
-    public function get_repo_docs()
+    public function get_repo_docs($repo = null)
     {
-        $repo     = $this->request->filter('strip_tags', 'trim', 'xss')->repo;
+        if ($repo===null) {
+            $repo = $this->request->filter('strip_tags', 'trim', 'xss')->repo;
+        }
         $username = $this->_config->username;
         return $this->yuque_get("https://www.yuque.com/api/v2/repos/$username/$repo/docs");
     }

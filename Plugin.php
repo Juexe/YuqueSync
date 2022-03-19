@@ -46,11 +46,9 @@ class YuqueSync_Plugin implements Typecho_Plugin_Interface
      */
     public static function config(Typecho_Widget_Helper_Form $form)
     {
-        $token     = new Typecho_Widget_Helper_Form_Element_Text('token', NULL, '', 'Token', '参考 https://www.yuque.com/yuque/developer/api#785a3731');
-        $namespace = new Typecho_Widget_Helper_Form_Element_Text('namespace', NULL, '', 'Namespace（默认）', '该值为缺省值，同步时会使用文章页面中填写的值。参考 https://www.yuque.com/yuque/developer/api#21f2fa80');
+        $token    = new Typecho_Widget_Helper_Form_Element_Text('token', NULL, '', 'Token', '参考 https://www.yuque.com/yuque/developer/api#785a3731');
         $username = new Typecho_Widget_Helper_Form_Element_Text('username', NULL, '', 'Login（语雀用户名）', '参考 https://www.yuque.com/yuque/developer/api#21f2fa80');
         $form->addInput($token);
-        $form->addInput($namespace);
         $form->addInput($username);
     }
 
@@ -71,30 +69,30 @@ class YuqueSync_Plugin implements Typecho_Plugin_Interface
      */
     public static function render($post)
     {
-        //Typecho_Widget::widget('Widget_Options')->to($options);
-        //$options->index('/action/yuque-sync?slug=');
-        $config  = Typecho_Widget::widget('Widget_Options')->plugin('YuqueSync');
-        $yq_link = "https://www.yuque.com/{$config->namespace}/{$post->slug}";
-        $repos = Typecho_Widget::widget('YuqueSync_Action')->get_repos();
+        $config = Typecho_Widget::widget('Widget_Options')->plugin('YuqueSync');
+        $repos  = Typecho_Widget::widget('YuqueSync_Action')->get_repos();
         ?>
         <section id="custom-field" class="typecho-post-option yuque-sync-field">
             <label id="custom-field-expand" class="typecho-label">同步语雀</label>
+            <?php if (empty($repos) || empty($repos['data'])): ?>
+                <p><a href="/admin/options-plugin.php?config=YuqueSync" style="color: red">当前配置有误，导致无法同步语雀，点击进入修改</a></p>
+            <?php endif; ?>
             <p>
                 <label for="yuque_repo">知识库</label>
-                <select name="" id="yuque_repo" onchange="update_yuque_link()">
+                <select name="" id="yuque_repo" onchange="repo_selected()">
                     <option value="">请选择</option>
                     <?php foreach ($repos['data'] as $repo): ?>
-                        <option value="<?php echo $repo['slug']?>"><?php echo $repo['name']?></option>
-                    <?php endforeach;?>
-                </select>
-                &nbsp;
+                        <option value="<?php echo $repo['slug'] ?>"><?php echo $repo['name'] ?></option>
+                    <?php endforeach; ?>
+                </select> &nbsp;
                 <label for="yuque_slug">文档</label>
-                <input id="yuque_slug" autocomplete="off" type="text" value="<?php echo $post->slug; ?>"
-                       placeholder="slug" style="150px" oninput="update_yuque_link()">
+                <select name="" id="yuque_slug" onchange="update_yuque_link()">
+                    <option value="">请选择</option>
+                </select>
                 <button type="button" class="btn" onclick="yuque_sync()">同步</button>
             </p>
             <p>对应语雀地址
-                <a class="yuque-link" target="_blank" href="<?php echo $yq_link ?>"><?php echo $yq_link ?></a>
+                <a class="yuque-link" target="_blank" href=""></a>
             </p>
         </section>
         <?php
@@ -109,16 +107,37 @@ class YuqueSync_Plugin implements Typecho_Plugin_Interface
         ?>
 
         <script>
+            function repo_selected() {
+                let repo = $('#yuque_repo').val();
+                let yuque_slug = $('#yuque_slug');
+                yuque_slug.html('<option value="">请选择</option>');
+
+                jQuery.ajax({
+                    url: '/index.php/action/yuque-sync',
+                    method: 'POST',
+                    data: {
+                        repo: repo,
+                        do: 'get_repo_docs'
+                    },
+                    success: function (res) {
+                        if (res.status != null) {
+                            alert('获取文档列表失败：' + res.message);
+                        } else {
+                            res.data.forEach(function (e) {
+                                yuque_slug.append(`<option value="${e.slug}">${e.title}</option>`)
+                            })
+                        }
+                    }
+                });
+                update_yuque_link();
+            }
+
             function yuque_sync() {
                 let slug = $('#yuque_slug').val();
                 let repo = $('#yuque_repo').val();
 
                 if (slug.length === 0 || repo.length === 0) {
-                    alert('repo 和 slug 不能为空');
-                    return;
-                }
-
-                if (!confirm(`即将请求语雀知识库，并覆盖当前文章！`)) {
+                    alert('请选择要同步的语雀知识库和文档');
                     return;
                 }
 
@@ -152,18 +171,6 @@ class YuqueSync_Plugin implements Typecho_Plugin_Interface
                 $('.yuque-link').attr('href', link).html(link);
             }
 
-            (function () {
-                jQuery.ajax({
-                    url: '/index.php/action/yuque-sync',
-                    method: 'POST',
-                    data: {
-                        do: 'get_repos'
-                    },
-                    success: function (res) {
-
-                    }
-                });
-            })();
         </script>
 
         <?php
