@@ -47,8 +47,10 @@ class YuqueSync_Plugin implements Typecho_Plugin_Interface
     {
         $token     = new Typecho_Widget_Helper_Form_Element_Text('token', NULL, '', 'Token', '参考 https://www.yuque.com/yuque/developer/api#785a3731');
         $namespace = new Typecho_Widget_Helper_Form_Element_Text('namespace', NULL, '', 'Namespace（默认）', '该值为缺省值，同步时会使用文章页面中填写的值。参考 https://www.yuque.com/yuque/developer/api#21f2fa80');
+        $username = new Typecho_Widget_Helper_Form_Element_Text('username', NULL, '', 'Login（语雀用户名）', '参考 https://www.yuque.com/yuque/developer/api#21f2fa80');
         $form->addInput($token);
         $form->addInput($namespace);
+        $form->addInput($username);
     }
 
     /**
@@ -108,7 +110,8 @@ class YuqueSync_Plugin implements Typecho_Plugin_Interface
                     method: 'POST',
                     data: {
                         namespace: namespace,
-                        slug: slug
+                        slug: slug,
+                        do: 'get_doc_details'
                     },
                     success: function (res) {
                         if (res.status != null) {

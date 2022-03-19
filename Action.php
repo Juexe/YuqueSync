@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 同步语雀文档操作类
  *
@@ -27,22 +28,51 @@ class YuqueSync_Action extends Typecho_Widget implements Widget_Interface_Do
     }
 
     /**
-     * 返回同步结果
+     * 获取文档列表
      */
-    public function sync()
+    public function get_repo_docs()
+    {
+        $repo     = $this->request->filter('strip_tags', 'trim', 'xss')->repo;
+        $username = $this->_config->username;
+        $result   = $this->yuque_get("https://www.yuque.com/api/v2/repos/$username/$repo/docs");
+        $this->response->throwJson($result);
+    }
+
+    /**
+     * 获取仓库列表
+     */
+    public function get_repos()
+    {
+        $username = $this->_config->username;
+        $result   = $this->yuque_get("https://www.yuque.com/api/v2/users/$username/repos");
+        $this->response->throwJson($result);
+    }
+
+    /**
+     * 获取文章详情
+     */
+    public function get_doc_details()
     {
         $namespace = $this->request->filter('strip_tags', 'trim', 'xss')->namespace;
-        $slug = $this->request->filter('strip_tags', 'trim', 'xss')->slug;
+        $slug      = $this->request->filter('strip_tags', 'trim', 'xss')->slug;
+        $result    = $this->yuque_get("https://www.yuque.com/api/v2/repos/{$namespace}/docs/{$slug}?raw=1");
+        $this->response->throwJson($result);
+    }
+
+    /**
+     * 请求语雀接口
+     */
+    public function yuque_get($url)
+    {
         $token = $this->_config->token;
 
         $client = Typecho_Http_Client::get();
         $client->setMethod('GET');
         $client->setHeader('User-Agent', 'Typecho-Yuque-Sync');
         $client->setHeader('X-Auth-Token', $token);
-        $client->send("https://www.yuque.com/api/v2/repos/{$namespace}/docs/{$slug}?raw=1");
+        $client->send($url);
 
-        $result = json_decode($client->getResponseBody());
-        $this->response->throwJson($result);
+        return json_decode($client->getResponseBody());
     }
 
     /**
@@ -53,6 +83,9 @@ class YuqueSync_Action extends Typecho_Widget implements Widget_Interface_Do
      */
     public function action()
     {
-        $this->on($this->request->isAjax())->sync();
+        $do = $this->request->filter('strip_tags', 'trim', 'xss')->do;
+        if (method_exists($this, $do)) {
+            return $this->$do();
+        }
     }
 }
