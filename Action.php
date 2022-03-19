@@ -24,7 +24,15 @@ class YuqueSync_Action extends Typecho_Widget implements Widget_Interface_Do
     {
         parent::__construct($request, $response, $params);
         /* 获取插件配置 */
-        $this->_config = parent::widget('Widget_Options')->plugin('YuqueSync');
+        $this->_config = Typecho_Widget::widget('Widget_Options')->plugin('YuqueSync');
+    }
+
+    /**
+     * 获取 key 用户
+     */
+    public function get_user()
+    {
+        return $this->yuque_get("https://www.yuque.com/api/v2/user");
     }
 
     /**
@@ -34,8 +42,7 @@ class YuqueSync_Action extends Typecho_Widget implements Widget_Interface_Do
     {
         $repo     = $this->request->filter('strip_tags', 'trim', 'xss')->repo;
         $username = $this->_config->username;
-        $result   = $this->yuque_get("https://www.yuque.com/api/v2/repos/$username/$repo/docs");
-        $this->response->throwJson($result);
+        return $this->yuque_get("https://www.yuque.com/api/v2/repos/$username/$repo/docs");
     }
 
     /**
@@ -44,8 +51,7 @@ class YuqueSync_Action extends Typecho_Widget implements Widget_Interface_Do
     public function get_repos()
     {
         $username = $this->_config->username;
-        $result   = $this->yuque_get("https://www.yuque.com/api/v2/users/$username/repos");
-        $this->response->throwJson($result);
+        return $this->yuque_get("https://www.yuque.com/api/v2/users/$username/repos");
     }
 
     /**
@@ -53,10 +59,10 @@ class YuqueSync_Action extends Typecho_Widget implements Widget_Interface_Do
      */
     public function get_doc_details()
     {
-        $namespace = $this->request->filter('strip_tags', 'trim', 'xss')->namespace;
+        $username = $this->_config->username;
+        $repo     = $this->request->filter('strip_tags', 'trim', 'xss')->repo;
         $slug      = $this->request->filter('strip_tags', 'trim', 'xss')->slug;
-        $result    = $this->yuque_get("https://www.yuque.com/api/v2/repos/{$namespace}/docs/{$slug}?raw=1");
-        $this->response->throwJson($result);
+        return $this->yuque_get("https://www.yuque.com/api/v2/repos/{$username}/{$repo}/docs/{$slug}?raw=1");
     }
 
     /**
@@ -72,7 +78,7 @@ class YuqueSync_Action extends Typecho_Widget implements Widget_Interface_Do
         $client->setHeader('X-Auth-Token', $token);
         $client->send($url);
 
-        return json_decode($client->getResponseBody());
+        return json_decode($client->getResponseBody(), true);
     }
 
     /**
@@ -85,7 +91,7 @@ class YuqueSync_Action extends Typecho_Widget implements Widget_Interface_Do
     {
         $do = $this->request->filter('strip_tags', 'trim', 'xss')->do;
         if (method_exists($this, $do)) {
-            return $this->$do();
+            return $this->response->throwJson($this->$do());
         }
     }
 }
