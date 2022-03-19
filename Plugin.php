@@ -7,7 +7,7 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
  *
  * @package YuqueSync
  * @author Juexe
- * @version 1.1.0
+ * @version 1.2.0
  * @link http://juexe.cn
  */
 class YuqueSync_Plugin implements Typecho_Plugin_Interface
@@ -75,7 +75,7 @@ class YuqueSync_Plugin implements Typecho_Plugin_Interface
         <section id="custom-field" class="typecho-post-option yuque-sync-field">
             <label id="custom-field-expand" class="typecho-label">同步语雀</label>
             <?php if (empty($repos) || empty($repos['data'])): ?>
-                <p><a href="/admin/options-plugin.php?config=YuqueSync" style="color: red">当前配置有误，导致无法同步语雀，点击进入修改</a></p>
+                <p><a href="/admin/options-plugin.php?config=YuqueSync" style="color: red">当前配置有误无法同步语雀，点击进入配置</a>（若无法进入配置页请<a href="/admin/plugins.php">重启插件</a>）</p>
             <?php endif; ?>
             <p>
                 <label for="yuque_repo">知识库</label>
