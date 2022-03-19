@@ -1,27 +1,22 @@
-## 要求
+# YuqueSync
 
-这里假设你已经拥有一个基于 [Typecho][6] 的博客。
-
-> Typecho 是一个简洁、轻量、开源的 Markdown 博客程序。<br>
-> [关于 Typecho][7]
-
-## 插件说明
-
-本插件可以在 Typecho 编辑器中直接同步语雀文档内容。
+本插件可以在 [Typecho][6] 编辑器中直接同步[语雀][1]文档内容。
 
 该功能使用语雀官方接口实现，更多说明见 [开发者文档][3]。
-
-> **[语雀][1]** 是一个从阿里蚂蚁金服孵化出来的云端知识库，功能十分[强大且易用][2]。
 
 ## 使用方式
 
 ### 1 安装插件
 
-将插件源码放置在 `[PathToTypecho]/usr/plugins` 目录下，并在后台启用插件 `YuqueSync` 即可。
+克隆本仓库到 Typecho 插件目录下，然后在后台启用即可。
+
+```
+cd /usr/plugins/
+git clone https://github.com/Juexe/YuqueSync.git
+```
 
 ### 2 配置
 
-安装并启用插件后，
 需要配置 `token` 和 `namespace` 两个参数，具体含义详见 [用户认证][4] 和 [参数说明][5]。
 
 配置界面：
@@ -35,7 +30,7 @@
 
 效果预览：
 
-![效果预览](./preview.gif)
+![效果预览](https://i.vgy.me/cYYi31.gif)
 
 （完）
 

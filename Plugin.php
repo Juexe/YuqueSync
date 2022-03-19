@@ -7,7 +7,7 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
  *
  * @package YuqueSync
  * @author Juexe
- * @version 1.0.0
+ * @version 1.1.0
  * @link http://juexe.cn
  */
 class YuqueSync_Plugin implements Typecho_Plugin_Interface
@@ -81,7 +81,7 @@ class YuqueSync_Plugin implements Typecho_Plugin_Interface
                        placeholder="namespace" style="150px" oninput="update_yuque_link()">
 
                 <label for="yuque_slug">Slug</label>
-                <input id="yuque_slug" type="text" value="<?php echo $post->slug; ?>" placeholder="slug" style="150px" oninput="update_yuque_link()">
+                <input id="yuque_slug" autocomplete="off" type="text" value="<?php echo $post->slug; ?>" placeholder="slug" style="150px" oninput="update_yuque_link()">
                 <button type="button" class="btn" onclick="yuque_sync()">同步</button>
             </p>
             <p>对应语雀地址
