@@ -31,9 +31,9 @@ class YuqueSync_Action extends Typecho_Widget implements Widget_Interface_Do
      */
     public function sync()
     {
+        $namespace = $this->request->filter('strip_tags', 'trim', 'xss')->namespace;
         $slug = $this->request->filter('strip_tags', 'trim', 'xss')->slug;
         $token = $this->_config->token;
-        $namespace = $this->_config->namespace;
 
         $client = Typecho_Http_Client::get();
         $client->setMethod('GET');
