@@ -21,6 +21,7 @@ class YuqueSync_Plugin implements Typecho_Plugin_Interface
     public static function activate()
     {
         Typecho_Plugin::factory('admin/write-post.php')->content = ['YuqueSync_Plugin', 'render'];
+        Typecho_Plugin::factory('admin/write-post.php')->bottom  = ['YuqueSync_Plugin', 'script'];
         Helper::addAction('yuque-sync', 'YuqueSync_Action');
     }
 
@@ -65,7 +66,7 @@ class YuqueSync_Plugin implements Typecho_Plugin_Interface
     }
 
     /**
-     * 插件实现方法
+     * 插件渲染
      * @param $post Widget_Contents_Post_Edit
      */
     public static function render($post)
@@ -74,30 +75,46 @@ class YuqueSync_Plugin implements Typecho_Plugin_Interface
         //$options->index('/action/yuque-sync?slug=');
         $config  = Typecho_Widget::widget('Widget_Options')->plugin('YuqueSync');
         $yq_link = "https://www.yuque.com/{$config->namespace}/{$post->slug}";
+        $repos = Typecho_Widget::widget('YuqueSync_Action')->get_repos();
         ?>
         <section id="custom-field" class="typecho-post-option yuque-sync-field">
             <label id="custom-field-expand" class="typecho-label">同步语雀</label>
             <p>
-                <label for="yuque_namespace">Namespace</label>
-                <input id="yuque_namespace" type="text" value="<?php echo $config->namespace; ?>"
-                       placeholder="namespace" style="150px" oninput="update_yuque_link()">
-
-                <label for="yuque_slug">Slug</label>
-                <input id="yuque_slug" autocomplete="off" type="text" value="<?php echo $post->slug; ?>" placeholder="slug" style="150px" oninput="update_yuque_link()">
+                <label for="yuque_repo">知识库</label>
+                <select name="" id="yuque_repo" onchange="update_yuque_link()">
+                    <option value="">请选择</option>
+                    <?php foreach ($repos['data'] as $repo): ?>
+                        <option value="<?php echo $repo['slug']?>"><?php echo $repo['name']?></option>
+                    <?php endforeach;?>
+                </select>
+                &nbsp;
+                <label for="yuque_slug">文档</label>
+                <input id="yuque_slug" autocomplete="off" type="text" value="<?php echo $post->slug; ?>"
+                       placeholder="slug" style="150px" oninput="update_yuque_link()">
                 <button type="button" class="btn" onclick="yuque_sync()">同步</button>
             </p>
             <p>对应语雀地址
                 <a class="yuque-link" target="_blank" href="<?php echo $yq_link ?>"><?php echo $yq_link ?></a>
             </p>
         </section>
+        <?php
+    }
+
+    /**
+     * 前端脚本
+     * @param $post Widget_Contents_Post_Edit
+     */
+    public static function script($post)
+    {
+        ?>
 
         <script>
             function yuque_sync() {
                 let slug = $('#yuque_slug').val();
-                let namespace = $('#yuque_namespace').val();
+                let repo = $('#yuque_repo').val();
 
-                if (slug.length === 0 || namespace.length === 0) {
-                    alert('namespace 和 slug 不能为空');
+                if (slug.length === 0 || repo.length === 0) {
+                    alert('repo 和 slug 不能为空');
                     return;
                 }
 
@@ -109,7 +126,7 @@ class YuqueSync_Plugin implements Typecho_Plugin_Interface
                     url: '/index.php/action/yuque-sync',
                     method: 'POST',
                     data: {
-                        namespace: namespace,
+                        repo: repo,
                         slug: slug,
                         do: 'get_doc_details'
                     },
@@ -125,14 +142,28 @@ class YuqueSync_Plugin implements Typecho_Plugin_Interface
                         }
                     }
                 });
+
             }
 
             function update_yuque_link() {
-                let namespace = $('#yuque_namespace').val();
+                let namespace = $('#yuque_repo').val();
                 let slug = $('#yuque_slug').val();
                 let link = `https://www.yuque.com/${namespace}/${slug}`;
                 $('.yuque-link').attr('href', link).html(link);
             }
+
+            (function () {
+                jQuery.ajax({
+                    url: '/index.php/action/yuque-sync',
+                    method: 'POST',
+                    data: {
+                        do: 'get_repos'
+                    },
+                    success: function (res) {
+
+                    }
+                });
+            })();
         </script>
 
         <?php
