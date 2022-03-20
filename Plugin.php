@@ -7,7 +7,7 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
  *
  * @package YuqueSync
  * @author Juexe
- * @version 1.2.0
+ * @version 1.2.1
  * @link http://juexe.cn
  */
 class YuqueSync_Plugin implements Typecho_Plugin_Interface
@@ -69,7 +69,6 @@ class YuqueSync_Plugin implements Typecho_Plugin_Interface
      */
     public static function render($post)
     {
-        $config = Typecho_Widget::widget('Widget_Options')->plugin('YuqueSync');
         $repos  = Typecho_Widget::widget('YuqueSync_Action')->get_repos();
         ?>
         <section id="custom-field" class="typecho-post-option yuque-sync-field">
@@ -104,6 +103,7 @@ class YuqueSync_Plugin implements Typecho_Plugin_Interface
      */
     public static function script($post)
     {
+        $config = Typecho_Widget::widget('Widget_Options')->plugin('YuqueSync');
         ?>
 
         <script>
@@ -165,9 +165,10 @@ class YuqueSync_Plugin implements Typecho_Plugin_Interface
             }
 
             function update_yuque_link() {
-                let namespace = $('#yuque_repo').val();
+                let user = '<?php echo $config->username ?>';
+                let repo = $('#yuque_repo').val();
                 let slug = $('#yuque_slug').val();
-                let link = `https://www.yuque.com/${namespace}/${slug}`;
+                let link = `https://www.yuque.com/${user}/${repo}/${slug}`;
                 $('.yuque-link').attr('href', link).html(link);
             }
 
