@@ -1,5 +1,7 @@
 # YuqueSync
 
+> 注：语雀目前使用 API 同步需要超级会员 :(
+
 - 本插件可以在 [Typecho][6] 编辑器中直接同步[语雀][1]文档内容
 - 本插件基于语雀官方接口实现，数据不经过任何第三方
 
@@ -28,7 +30,7 @@ git clone https://github.com/Juexe/YuqueSync.git
 
 效果预览：
 
-![效果预览](https://i.vgy.me/ON1esF.gif)
+![image](https://github.com/Juexe/YuqueSync/assets/26461438/a0c1bbc5-298d-4a8c-ba4c-f9a12b60dd27)
 
 （完）
 
